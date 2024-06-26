@@ -1,0 +1,23 @@
+.container {
+    min-height: 100vh;
+    background-color: #f0f0f0; /* Puedes ajustar esto según tus necesidades */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .authBox {
+    width: 450px;
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+  }
+  
+  .boxShadow {
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1); /* Puedes ajustar esto según tus necesidades */
+  }
+  
+  .title {
+    margin-bottom: 20px;
+  }
+  

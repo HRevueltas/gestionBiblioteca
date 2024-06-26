@@ -1,0 +1,95 @@
+/* Estilos generales */
+.contenedorCategorias {
+    max-width: 960px;
+    margin: 20px auto;
+    padding: 20px;
+}
+
+.tituloCategorias {
+    font-size: 1.8rem;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+/* Categorías agrupadas */
+.categoriasAgrupadas {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+.grupoCategoria {
+    background-color: #f0f0f0;
+    padding: 20px;
+    border-radius: 8px;
+}
+
+.grupoCategoria h3 {
+    margin-bottom: 10px;
+}
+
+.grupoCategoria ul {
+    list-style: none;
+    padding: 0;
+}
+
+.grupoCategoria li {
+    margin-bottom: 5px;
+}
+
+.grupoCategoria a {
+    text-decoration: none;
+    color: #333;
+}
+/* ... (estilos anteriores) ... */
+
+.gridCategorias {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); /* Responsive */
+    gap: 20px;
+}
+
+.tarjetaCategoria {
+    background-color: #fff; /* Fondo blanco para las tarjetas */
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Sombra sutil */
+    transition: transform 0.3s ease, box-shadow 0.3s ease; /* Transiciones suaves */
+}
+
+.tarjetaCategoria:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15); /* Sombra más intensa al pasar el ratón */
+}
+
+.tituloGrupo {
+    font-size: 1.4rem;
+    margin-bottom: 10px;
+    color: #333; /* Color de texto más oscuro */
+}
+
+.listaSubcategorias {
+    list-style: none;
+    padding: 0;
+}
+
+.enlaceSubcategoria {
+    display: block;
+    padding: 8px 0;
+    color: #555; /* Color de texto más claro para las subcategorías */
+    text-decoration: none;
+    transition: color 0.2s ease; /* Transición suave del color */
+}
+
+.enlaceSubcategoria:hover {
+    color: #007bff; /* Color de enlace al pasar el ratón */
+}
+.dropdownMenu {
+    position: absolute;
+    top: 100%; /* Posición debajo del elemento "Libros" */
+    left: 0;
+    background-color: white;
+    border: 1px solid #ccc;
+    z-index: 10; /* Asegurar que esté encima de otros elementos */
+    width: 200px; /* Ajusta el ancho según tus necesidades */
+  }

@@ -1,0 +1,55 @@
+/* MostrarOpiniones.module.css */
+
+.opinionesContainer {
+    width: 100%;
+    max-width: 800px; /* Aumento del ancho máximo */
+    max-height: 400px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    overflow-y: auto; /* Cambiado a auto para que aparezca la barra de desplazamiento solo si es necesario */
+}
+
+.opinionesContainer h3 {
+    font-size: 1.5rem;
+    text-align: center;
+    margin-bottom: 20px;
+    position: sticky;
+    top: 0;
+    background-color: #f9f9f9;
+}
+
+.opinionesList {
+    list-style-type: none;
+    padding: 0;
+}
+
+.opinionItem {
+    margin-bottom: 20px; /* Aumentado el margen inferior */
+    padding: 15px;
+    background-color: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.opinionItem .usuario {
+    font-weight: bold; /* Nombre de usuario en negrita */
+    font-size: 1.2rem; /* Tamaño de fuente del nombre de usuario */
+    margin-bottom: 5px; /* Separación entre nombre de usuario y opinión */
+}
+
+.opinionItem .fecha {
+    color: #666666;
+    font-size: 0.9rem; /* Tamaño de fuente de la fecha */
+    text-align: right; /* Alineación a la derecha */
+}
+
+.opinionItem p {
+    font-size: 1rem;
+    line-height: 1.5; /* Espaciado de línea mejorado */
+    
+}
