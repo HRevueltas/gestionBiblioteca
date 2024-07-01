@@ -1,8 +1,7 @@
 # Proyecto de Gestión de Biblioteca
 
-Este proyecto es una aplicación web desarrollada con React para el frontend y Node.js para el backend. A continuación, se detallan los pasos necesarios para poner en marcha la aplicación desde cero.
 
-## Requisitos previos
+## Requisitos para poner en marcha la aplicación
 Tener instalado lo siguiente en la máquina:
 
 - Node.js: [Descargar e instalar Node.js](https://nodejs.org)
@@ -57,6 +56,9 @@ npm run dev
 ```
 
 Una vez completados estos pasos, la aplicación estará disponible en la dirección que se muestra en la terminal.
-la cual
+
+igual o similar a la de esta imagen:
+
+![alt text](image.png)
 
 
