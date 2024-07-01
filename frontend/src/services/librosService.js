@@ -5,7 +5,7 @@ export const fetchLibros = async () => {
     try {
         const response = await axios.get(`${API_BASE_URL}/libros`);
         return response.data;
-    } catch (error) {s
+    } catch (error) {
         console.error('Error obteniendo los libros: ', error);
         throw error;
     }

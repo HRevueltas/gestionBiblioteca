@@ -5,7 +5,16 @@ export const obtenerLibros = async (req, res) => {
 
     try {
         conexion = await crearConexion();
-
+        /**
+         * La consulta realiza una selección de varias columnas de las tablas "Libros", "LibroAutores", "Autores", "LibroCategorias" y "Categorias".
+         * Utiliza la cláusula LEFT JOIN para combinar las tablas y obtener información relacionada.
+         * La cláusula GROUP BY se utiliza para agrupar los resultados por el identificador del libro (L.id).
+         * Esto nos asegura que obtendremos solo una fila de resultados para cada libro.
+         * La función GROUP_CONCAT se utiliza para concatenar los nombres de los autores y las categorías en una sola cadena separada por comas.
+         * Esto nos permite obtener una lista de todos los autores y categorías relacionados con el libro.
+         * 
+         * DISTINCT se utiliza para eliminar duplicados en la lista de autores y categorías.
+         */
         const rows = await conexion.query(`
         SELECT 
             L.id, L.titulo, L.imagen_url, L.editorial, L.ano, L.idioma, L.npaginas, L.isbn13,
@@ -17,7 +26,6 @@ export const obtenerLibros = async (req, res) => {
         LEFT JOIN LibroCategorias LC ON L.id = LC.libro_id
         LEFT JOIN Categorias C ON LC.categoria_id = C.id
         GROUP BY L.id 
-
         `);
 
         const libros = rows.map(row => ({
@@ -44,6 +52,18 @@ export const obtenerLibroPorId = async (req, res) => {
         const { id } = req.params;
         conexion = await crearConexion();
 
+        /**El código actual realiza una consulta a una base de datos para obtener información sobre un libro específico. La consulta utiliza varias tablas y realiza un JOIN para obtener información adicional relacionada con el libro.
+
+        Aquí está el significado de las diferentes partes del código:
+        
+        La consulta comienza con la palabra clave SELECT, que indica que queremos seleccionar ciertas columnas de la base de datos.
+        Luego, se enumeran las columnas que queremos seleccionar: L.id, L.titulo, L.imagen_url, L.editorial, L.ano, L.idioma, L.npaginas, L.isbn13. Estas columnas representan diferentes atributos del libro.
+        Después de las columnas, utilizamos la función GROUP_CONCAT para concatenar los nombres de los autores y las categorías en una sola cadena separada por comas. Esto nos permite obtener una lista de todos los autores y categorías relacionados con el libro.
+        A continuación, especificamos las tablas y las condiciones de unión utilizando la cláusula LEFT JOIN. Esto nos permite combinar la tabla principal "Libros" con las tablas "LibroAutores", "Autores", "LibroCategorias" y "Categorias" para obtener la información relacionada.
+        La cláusula WHERE se utiliza para filtrar los resultados y especificar que solo queremos obtener información sobre un libro específico. El valor del parámetro id se utiliza para comparar con la columna L.id.
+        Finalmente, utilizamos la cláusula GROUP BY para agrupar los resultados por el identificador del libro (L.id). Esto nos asegura que obtendremos solo una fila de resultados para cada libro.
+        En resumen, este código realiza una consulta a la base de datos para obtener información detallada sobre un libro, incluyendo sus atributos, autores y categorías relacionadas.
+        */
         const rows = await conexion.query(`
             SELECT 
                 L.id, L.titulo, L.imagen_url, L.editorial, L.ano, L.idioma, L.npaginas, L.isbn13,
@@ -117,6 +137,19 @@ export const obtenerEjemplarDisponible = async (req, res) => {
         const conexion = await crearConexion();
 
         // Consulta para obtener el primer ejemplar disponible para un libro específico
+        /*
+        La consulta utiliza la cláusula SELECT para especificar qué columna o columnas se deben seleccionar de la tabla Ejemplares. En este caso, solo se selecciona la columna numero_ejemplar.
+
+        La cláusula FROM especifica la tabla de la cual se deben seleccionar los datos. En este caso, se selecciona de la tabla Ejemplares.
+
+        La cláusula WHERE se utiliza para filtrar los resultados según una condición. En este caso, se filtran los ejemplares que tienen un libro_id específico y un estado de "disponible".
+
+        La cláusula ORDER BY se utiliza para ordenar los resultados según una columna específica. En este caso, los resultados se ordenan en orden ascendente según la columna numero_ejemplar.
+
+        La cláusula LIMIT se utiliza para limitar el número de filas devueltas por la consulta. En este caso, se limita a solo una fila, lo que significa que se seleccionará el primer ejemplar disponible.
+
+        Esta consulta se puede utilizar en un sistema de biblioteca para encontrar el primer ejemplar disponible de un libro específico.
+        */
         const consulta = `
             SELECT numero_ejemplar
             FROM Ejemplares

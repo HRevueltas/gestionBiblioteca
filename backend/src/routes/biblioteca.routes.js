@@ -1,19 +1,12 @@
 import { Router } from "express";
 import {
-    actualizarLibro,
-    agregarLibro,
     dejarOpinion,
-    eliminarLibro,
-    eliminarUsuario,
-    iniciarSesionAdmin,
     iniciarSesionUsuario,
     obtenerLibroPorId,
     obtenerLibros,
-    obtenerPrestamosUsuario,
-    obtenerUsuariosRegistrados,
+    obtenerPrestamosActivosUsuario,
     realizarPrestamo,
     registrarUsuario,
-    ejemplaresDisponiblesPorLibroId,
     totalEjemplaresDisponiblesPorLibroId,
     obtenerEjemplarDisponible,
     devolverPrestamo,
@@ -22,6 +15,7 @@ import {
 
 } from "../controllers";
 
+import { actualizarLibro, agregarAutor, agregarCategoria,  agregarLibroConEjemplares, cambiarEstadoPrestamo, editarAutor, editarCategoria, editarUsuario, eliminarAutor, eliminarCategoria, eliminarLibro, eliminarUsuario, iniciarSesionAdmin, obtenerAutores, obtenerCategorias, obtenerLibrosConEjemplares, obtenerPrestamosUsuario, obtenerUsuariosRegistrados } from "../controllers/admin.controller";
 const router = Router();
 
 /*
@@ -47,7 +41,7 @@ router.post("/usuarios/login", iniciarSesionUsuario);
 // ruta para realizar un prestamo
 router.post("/usuarios/prestamo", realizarPrestamo);
 // ruta para obtener prestamos de un usuario 
-router.get("/usuarios/prestamos/:usuario_id", obtenerPrestamosUsuario);
+router.get("/usuarios/prestamos/:usuario_id", obtenerPrestamosActivosUsuario);
 // Ruta para devolver un préstamo
 router.put('/prestamos/devolver/:prestamoId', devolverPrestamo);
  
@@ -62,7 +56,7 @@ router.get("/libros/opinion/:libro_id", obtenerOpinionLibro);
 
 
 /**
- * TODO: Definir las rutas para los administradores
+ * TODO:  Falta  Definir las rutas para los administradores
  
  */
 /* 
@@ -70,9 +64,30 @@ router.get("/libros/opinion/:libro_id", obtenerOpinionLibro);
 */
 router.post("/admin/login", iniciarSesionAdmin);
 router.get("/admin/usuarios", obtenerUsuariosRegistrados);
-router.post("/admin/libros/agregar", agregarLibro);
+router.delete("/admin/usuarios/eliminar/:id", eliminarUsuario);
+router.put("/admin/usuarios/editar/:id", editarUsuario);
+router.get("/admin/libros", obtenerLibrosConEjemplares);
+
+// Rutas para categorias
+router.post("/admin/categorias/agregar", agregarCategoria);
+router.get("/admin/categorias", obtenerCategorias);
+router.put('/admin/categorias/:id', editarCategoria);
+router.delete('/admin/categorias/:id', eliminarCategoria);
+
+//Rutas para autores
+router.post("/admin/autores/agregar", agregarAutor);
+router.get("/admin/autores", obtenerAutores);
+router.put('/admin/autores/:id', editarAutor);
+router.delete('/admin/autores/:id', eliminarAutor);
+
+router.post("/admin/libros/agregar", agregarLibroConEjemplares);
 router.put("/admin/libros/actualizar/:id", actualizarLibro);
 router.delete("/admin/libros/eliminar/:id", eliminarLibro);
-router.delete("/admin/usuarios/eliminar/:id", eliminarUsuario);
+
+// obtener prestamos
+router.get("/admin/prestamos", obtenerPrestamosUsuario);
+
+// actualizar estado de prestamo
+router.put("/admin/prestamos/actualizar/:id", cambiarEstadoPrestamo);
 
 export default router;

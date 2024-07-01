@@ -8,10 +8,10 @@ import { PrestamosPage } from "../pages/PrestamosPage"
 import { NotFoundPage } from "../pages/NotFoundPage"
 
 export const BibliotecaRoutes = () => {
-    return ( 
+    return (
 
         <>
-<NavBar /> {/* Siempre muestra la barra de navegación */}
+            <NavBar /> {/* Siempre muestra la barra de navegación */}
             <Routes>
                 <Route path="/inicio" element={<PrincipalPage />} />
                 <Route path="/prestamos" element={<PrestamosPage />} />

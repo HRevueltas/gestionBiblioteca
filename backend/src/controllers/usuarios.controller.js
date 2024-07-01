@@ -1,5 +1,6 @@
 // controllers/usuarios.js
 import bcrypt from "bcrypt";
+// controllers/usuarios.js
 import { crearConexion } from "../database/database";
 
 export const registrarUsuario = async (req, res) => {
@@ -16,14 +17,11 @@ export const registrarUsuario = async (req, res) => {
             return res.status(400).json({ error: 'El correo electrónico ya está registrado' });
         }
 
-        // Encriptar la contraseña antes de almacenarla en la base de datos
-        const hashedPassword = await bcrypt.hash(contrasena, 10); // Utiliza bcrypt para generar un hash seguro
-
-        // Insertar nuevo usuario en la base de datos con la contraseña encriptada
+        // Insertar nuevo usuario en la base de datos sin encriptar la contraseña
         await conexion.query(`
             INSERT INTO Usuarios (nombre, apellidos, email, contrasena, celular, cedula) 
             VALUES (?, ?, ?, ?, ?, ?)
-        `, [nombre, apellidos, email, hashedPassword, celular, cedula]);
+        `, [nombre, apellidos, email, contrasena, celular, cedula]);
 
         // Obtener los datos del usuario recién registrado
         const [newUser] = await conexion.query(`
@@ -45,28 +43,27 @@ export const registrarUsuario = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
-
 // Inicio de sesión de usuario
 export const iniciarSesionUsuario = async (req, res) => {
     try {
         const { email, contrasena } = req.body;
         const conexion = await crearConexion();
 
-
+        // Consultar los datos del usuario por su correo electrónico
         const [rows] = await conexion.query(`
             SELECT id, nombre, apellidos, contrasena FROM Usuarios WHERE email = ?
         `, [email]);
 
-
+        // Verificar si el usuario existe
         if (rows === undefined || rows.length === 0) {
             return res.status(401).json({ error: 'Credenciales inválidas' });
         }
 
+        // Obtener los datos del usuario
         const user = rows;
 
-        // Compara la contraseña ingresada con el hash almacenado en la base de datos
-        const match = await bcrypt.compare(contrasena, user.contrasena); // Compara la contraseña con el hash almacenado
-        if (!match) {
+        // Verificar si la contraseña ingresada coincide con la almacenada en la base de datos
+        if (contrasena !== user.contrasena) {
             return res.status(401).json({ error: 'Credenciales inválidas' }); // Contraseña incorrecta
         }
 
@@ -78,14 +75,11 @@ export const iniciarSesionUsuario = async (req, res) => {
             email: email
         };
 
-
-
         res.status(200).json({ message: 'Inicio de sesión exitoso', usuario });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 };
-
 export const realizarPrestamo = async (req, res) => {
     try {
         const { usuario_id, libro_id, numero_ejemplar, fecha_prestamo, fecha_devolucion } = req.body;
@@ -111,37 +105,22 @@ export const realizarPrestamo = async (req, res) => {
 };
 
 
-// export const realizarPrestamo = async (req, res) => {
-//     try {
-//         const { usuario_id, libro_id } = req.body;
-//         const fecha_prestamo = new Date();
-//         const fecha_devolucion = new Date();
-//         fecha_devolucion.setDate(fecha_prestamo.getDate() + 21); // 21 días después
-
-//         const conexion = await crearConexion();
-
-//         await conexion.query(`CALL RegistrarPrestamo(?, ?, ?, ?)`, [
-//             usuario_id,
-//             libro_id,
-//             fecha_prestamo,
-//             fecha_devolucion
-//         ]);
-
-//         res.status(201).json({ message: 'Préstamo realizado exitosamente' });
-//     } catch (error) {
-//         console.error("Error en realizarPrestamo:", error.message);
-//         res.status(500).json({ error: error.message });
-//     }
-// };
 
 
-export const obtenerPrestamosUsuario = async (req, res) => {
+export const obtenerPrestamosActivosUsuario = async (req, res) => {
     const { usuario_id } = req.params;
 
     try {
         const conexion = await crearConexion();
 
-        // Consulta para obtener los préstamos del usuario
+        
+        /**
+         * Consulta para recuperar los préstamos activos de un usuario específico.
+         * Esta consulta selecciona el ID del préstamo, el ID del libro, el título del libro, el número de copia, la fecha de préstamo, la fecha de devolución y el estado del préstamo
+         * de la tabla Préstamos, uniéndola con la tabla Libros para obtener el título del libro.
+         * Filtra los resultados por el ID del usuario y el estado del préstamo que sea 'activo'.
+         */
+        
         const query = `
             SELECT P.id, P.libro_id, L.titulo AS libro_titulo, P.numero_ejemplar, P.fecha_prestamo, P.fecha_devolucion, P.estado
             FROM Prestamos P
@@ -158,37 +137,10 @@ export const obtenerPrestamosUsuario = async (req, res) => {
         console.log("rows", rows);
         res.json(rows);
     } catch (error) {
-        console.error('Error al obtener losddasd préstamos del usuario:', error);
+        console.error('Error al obtener los préstamos del usuario:', error);
         res.status(500).json({ error: 'Error al obtener los préstamos del usuario' });
     }
 };
-// Obtener préstamos de un usuario
-// export const obtenerPrestamosUsuario = async (req, res) => {
-// try {
-//     const { usuario_id } = req.params;
-//     const conexion = await crearConexion();
-
-//     const rows = await conexion.query(`
-//         SELECT p.id, u.nombre AS nombreUsuario, l.titulo AS tituloLibro, p.estado, p.fecha_devolucion
-//         FROM Prestamos p
-//         JOIN Usuarios u ON p.usuario_id = u.id
-//         JOIN Libros l ON p.libro_id = l.id
-//         WHERE p.usuario_id = ? AND p.estado = 'activo' 
-//     `, [usuario_id]);
-
-
-
-//     if (rows  ===  undefined || rows.length === 0) {
-//         return res.status(404).json({ error: 'No se encontraron préstamos para este usuario.' });
-//     }
-
-
-//     res.status(200).json(rows);
-// } catch (error) {
-//     console.error("Error en obtenerPrestamosUsuario:", error.message);
-//     res.status(500).json({ error: error.message });
-// }
-// };
 
 
 export const devolverPrestamo = async (req, res) => {
@@ -197,6 +149,7 @@ export const devolverPrestamo = async (req, res) => {
         const conexion = await crearConexion();
 
 
+        // Llamar al procedimiento almacenado para devolver el préstamo
         await conexion.query(`CALL DevolverPrestamo(?)`, [prestamoId]);
 
 
@@ -214,6 +167,7 @@ export const dejarOpinion = async (req, res) => {
     const fecha_opinion = new Date().toISOString().split('T')[0]; // Obtener la fecha actual
     try {
         const conexion = await crearConexion();
+        // Llamar al procedimiento almacenado para dejar la opinión
         await conexion.query(' CALL dejarOpinion(?, ?, ?, ?)', [usuario_id, libro_id, opinion, fecha_opinion]);
         
         res.status(201).json({ message: 'Opinión registrada exitosamente' });
@@ -232,7 +186,13 @@ export const obtenerOpinionLibro = async (req, res) => {
     try {
         const conexion = await crearConexion();
 
-        // Consulta para obtener las opiniones del libro
+       
+        /**
+         * Consulta para obtener las opiniones de un libro específico.
+         * Esta consulta selecciona el ID de la opinión, el contenido de la opinión, la fecha de la opinión y el nombre del usuario que dejó la opinión.
+         * Se une la tabla de Opiniones con la tabla de Usuarios utilizando el ID de usuario para obtener el nombre del usuario.
+         * Filtra los resultados por el ID del libro.
+         */
         const rows = await conexion.query(`
             SELECT o.id, o.opinion, o.fecha_opinion, u.nombre AS nombreUsuario
             FROM Opiniones o

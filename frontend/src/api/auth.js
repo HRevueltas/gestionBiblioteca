@@ -10,3 +10,8 @@ export const iniciarSesionUsuario = async (formData) => {
     const response = await axios.post(`${API_BASE_URL}/usuarios/login`, formData);
     return response.data;
 };
+
+export const iniciarSesionAdmin = async (formData) => {
+    const response = await axios.post(`${API_BASE_URL}/admin/login`, formData);
+    return response.data;
+}

@@ -1,0 +1,35 @@
+/* src/admin/components/Card.module.css */
+.card {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 16px;
+    margin: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    transition: background-color 0.3s ease;
+}
+
+.card:hover {
+    background-color: #f0f0f0;
+}
+
+.cardIcon {
+    font-size: 24px;
+    margin-right: 16px;
+}
+
+.cardInfo {
+    flex-grow: 1;
+}
+
+.card h3 {
+    margin: 0;
+    font-size: 18px;
+}
+
+.card p {
+    margin: 8px 0 0;
+    color: #666;
+    font-size: 14px;
+}
