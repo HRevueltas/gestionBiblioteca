@@ -145,6 +145,14 @@ export const agregarLibroNuevo = async (datos) => {
     }
 }
 
+export const actualizarLibro = async (id, datos) => {
+    try {
+        await axios.put(`${API_BASE_URL}/admin/libros/actualizar/${id}`, datos);
+    } catch (error) {
+        console.error('Error al actualizar libro:', error);
+        throw error;
+    }
+}
 
 
 // prestamos 
@@ -169,3 +177,84 @@ export const  actualizarEstadoPrestamo = async (id, estado) => {
     }
 }
     
+
+// opiniones de usuarios
+
+export const obtenerOpinionesUsuarios = async () => {
+
+    try {
+        const response = await axios.get(`${API_BASE_URL}/admin/opiniones`);
+        return response.data;
+    } catch (error) {
+        console.error('Error al obtener opiniones:', error);
+        throw error;
+    }
+}
+
+export const eliminarOpinion = async (id) => {
+    try {
+        await axios.delete(`${API_BASE_URL}/admin/opiniones/eliminar/${id}`);
+    } catch (error) {
+        console.error('Error al borrar opinion:', error);
+        throw error;
+    }
+}
+
+export const  obtenerLibroConEjemplaresPorId = async (id) => {
+    try {
+        const response = await axios.get(`${API_BASE_URL}/admin/libros/${id}`);
+        return response.data;
+    } catch (error) {
+        console.error('Error al obtener libro:', error);
+        throw error;
+    }
+}
+
+export const agregarEjemplar = async (libroId, datos) => {
+    try {
+        await axios.post(`${API_BASE_URL}/admin/ejemplares/agregar/${libroId}`, datos);
+    } catch (error) {
+        console.error('Error al agregar ejemplar:', error);
+        throw error;
+    }
+}
+
+export const obtenerCantidadLibros = async () => {
+    try {
+        const response = await axios.get(`${API_BASE_URL}/admin/total/libros`);
+        return response.data;
+    } catch (error) {
+        console.error('Error al obtener cantidad de libros:', error);
+        throw error;
+    }
+}
+
+export const obtenerCantidadUsuarios = async () => {
+    try {
+        const response = await axios.get(`${API_BASE_URL}/admin/total/usuarios`);
+        return response.data;
+    } catch (error) {
+        console.error('Error al obtener cantidad de usuarios:', error);
+        throw error;
+    }
+}
+
+export const obtenerCantidadPrestamosActivos = async () => {
+    try {
+        const response = await axios.get(`${API_BASE_URL}/admin/total/prestamos`);
+        return response.data;
+    } catch (error) {
+        console.error('Error al obtener cantidad de prestamos:', error);
+        throw error;
+    }
+}
+
+export const obtenerCantidadOpiniones = async () => {
+    try {
+        const response = await axios.get(`${API_BASE_URL}/admin/total/opiniones`);
+        return response.data;
+    } catch (error) {
+        console.error('Error al obtener cantidad de opiniones:', error);
+        throw error;
+    }
+}

@@ -15,7 +15,7 @@ import {
 
 } from "../controllers";
 
-import { actualizarLibro, agregarAutor, agregarCategoria,  agregarLibroConEjemplares, cambiarEstadoPrestamo, editarAutor, editarCategoria, editarUsuario, eliminarAutor, eliminarCategoria, eliminarLibro, eliminarUsuario, iniciarSesionAdmin, obtenerAutores, obtenerCategorias, obtenerLibrosConEjemplares, obtenerPrestamosUsuario, obtenerUsuariosRegistrados } from "../controllers/admin.controller";
+import { actualizarLibro, agregarAutor, agregarCategoria,  agregarEjemplar,  agregarLibroConEjemplares, cambiarEstadoPrestamo, editarAutor, editarCategoria, editarUsuario, eliminarAutor, eliminarCategoria, eliminarLibro, eliminarOpinion, eliminarUsuario, iniciarSesionAdmin, obtenerAutores, obtenerCantidadLibros, obtenerCantidadOpiniones, obtenerCantidadPrestamosActivos, obtenerCantidadUsuarios, obtenerCategorias, obtenerLibroConEjemplaresPorId, obtenerLibrosConEjemplares, obtenerOpinionesUsuarios, obtenerPrestamosUsuario, obtenerUsuariosRegistrados } from "../controllers/admin.controller";
 const router = Router();
 
 /*
@@ -82,12 +82,27 @@ router.delete('/admin/autores/:id', eliminarAutor);
 
 router.post("/admin/libros/agregar", agregarLibroConEjemplares);
 router.put("/admin/libros/actualizar/:id", actualizarLibro);
-router.delete("/admin/libros/eliminar/:id", eliminarLibro);
+// router.delete("/admin/libros/eliminar/:id", eliminarLibro);
 
+router.get("/admin/libros/:id", obtenerLibroConEjemplaresPorId);
+// ruta para agregar ejemplares a un libro
+router.post("/admin/ejemplares/agregar/:libro_id", agregarEjemplar);
 // obtener prestamos
 router.get("/admin/prestamos", obtenerPrestamosUsuario);
 
 // actualizar estado de prestamo
 router.put("/admin/prestamos/actualizar/:id", cambiarEstadoPrestamo);
+
+
+// opiniones de usuarios
+router.get("/admin/opiniones", obtenerOpinionesUsuarios);
+router.delete("/admin/opiniones/eliminar/:id", eliminarOpinion);
+
+// obtener cantidades
+router.get("/admin/total/libros",obtenerCantidadLibros);
+router.get("/admin/total/usuarios",obtenerCantidadUsuarios);
+router.get("/admin/total/prestamos",obtenerCantidadPrestamosActivos);
+router.get("/admin/total/opiniones",obtenerCantidadOpiniones);
+
 
 export default router;

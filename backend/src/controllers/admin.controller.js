@@ -304,33 +304,91 @@ export const agregarLibroConEjemplares = async (req, res) => {
     }
 };
 
-export const agregarEjemplar = async (req, res) => {
+
+// Obtener libro con ejemplares por ID
+export const obtenerLibroConEjemplaresPorId = async (req, res) => {
+    const { id } = req.params; // ID del libro a consultar
+
     try {
-        // Lógica para agregar un nuevo ejemplar de un libro al inventario de la biblioteca
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-}
-const eliminarEjemplar = async (req, res) => {
-    try {
-        // Lógica para eliminar un ejemplar de un libro del inventario de la biblioteca
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-}
-// Actualizar información de un libro existente
-export const actualizarLibro = async (req, res) => {
-    try {
-        // Lógica para actualizar la información de un libro en el inventario
+        const conexion = await crearConexion();
+        const query = `
+            SELECT 
+                l.id AS libro_id,
+                l.titulo,
+                l.imagen_url,
+                l.editorial,
+                l.ano,
+                l.idioma,
+                l.npaginas,
+                l.isbn13,
+                e.numero_ejemplar,
+                e.estado
+            FROM 
+                Libros l
+            JOIN 
+                Ejemplares e ON l.id = e.libro_id
+            WHERE 
+                l.id = ?
+        `;
+        const libroConEjemplares = await conexion.query(query, [id]);
+
+
+        if (libroConEjemplares.length === 0) {
+            return res.status(404).json({ error: 'Libro no encontrado' });
+        }
+
+        res.status(200).json(libroConEjemplares);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 };
 
-// Eliminar libro del inventario
-export const eliminarLibro = async (req, res) => {
+
+export const agregarEjemplar = async (req, res) => {
+
+
+    // obtener el ultimo numero de ejemplar
+    const { libro_id } = req.params;
+    let conexion;
     try {
-        // Lógica para eliminar un libro del inventario de la biblioteca
+        conexion = await crearConexion();
+        const queryUltimoEjemplar = `
+            SELECT IFNULL(MAX(numero_ejemplar), 0) AS ultimo_numero
+            FROM Ejemplares
+            WHERE libro_id = ?
+        `;
+        const resultUltimoEjemplar = await conexion.query(queryUltimoEjemplar, [libro_id]);
+
+        let ultimoNumeroEjemplar = resultUltimoEjemplar[0].ultimo_numero || 0;
+
+        const { estado } = req.body;
+        const query = `INSERT INTO Ejemplares (libro_id, numero_ejemplar, estado) VALUES (?, ?, ?)`;
+        await conexion.query(query, [libro_id, ultimoNumeroEjemplar + 1, estado]);
+        res.status(201).json({ mensaje: 'Ejemplar agregado exitosamente' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+
+// Actualizar información de un libro existente
+export const actualizarLibro = async (req, res) => {
+    const { id } = req.params;
+    const { titulo, imagen_url, editorial, ano, idioma, npaginas, isbn13 } = req.body;
+
+    let conexion;
+    try {
+        conexion = await crearConexion();
+
+        // Actualizar la información del libro en la tabla Libros
+        const queryLibro = `
+            UPDATE Libros
+            SET titulo = ?, imagen_url = ?, editorial = ?, ano = ?, idioma = ?, npaginas = ?, isbn13 = ?
+            WHERE id = ?
+        `;
+        await conexion.query(queryLibro, [titulo, imagen_url, editorial, ano, idioma, npaginas, isbn13, id]);
+
+        res.status(200).json({ mensaje: 'Libro actualizado exitosamente' });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -359,19 +417,166 @@ export const obtenerPrestamosUsuario = async (req, res) => {
 
 
 
+// Cambiar estado del préstamo y del ejemplar
 export const cambiarEstadoPrestamo = async (req, res) => {
     const { id } = req.params;
     const { estado } = req.body;
-    console.log('id:', id, 'estado:', estado);
     let conexion;
     try {
         conexion = await crearConexion();
-        const query = `UPDATE Prestamos SET estado = ? WHERE id = ?`;
-        await conexion.query(query, [estado, id]);
-        res.status(200).json({ mensaje: 'Estado del préstamo actualizado exitosamente' });
+        
+        // Obtener información del préstamo para determinar el libro y el número de ejemplar
+        const prestamoQuery = `
+            SELECT libro_id, numero_ejemplar, estado AS estado_prestamo
+            FROM Prestamos
+            WHERE id = ?
+        `;
+        const [prestamoInfo] = await conexion.query(prestamoQuery, [id]);
+
+        if (!prestamoInfo) {
+            return res.status(404).json({ error: 'Préstamo no encontrado' });
+        }
+
+        // Actualizar estado del préstamo
+        const updatePrestamoQuery = `
+            UPDATE Prestamos
+            SET estado = ?
+            WHERE id = ?
+        `;
+        await conexion.query(updatePrestamoQuery, [estado, id]);
+
+        // Actualizar estado del ejemplar según las reglas especificadas
+        let nuevoEstadoEjemplar = 'disponible';
+        if (estado === 'devuelto') {
+            nuevoEstadoEjemplar = 'disponible';
+        } else {
+            nuevoEstadoEjemplar = 'no_disponible';
+        }
+
+        const updateEjemplarQuery = `
+            UPDATE Ejemplares
+            SET estado = ?
+            WHERE libro_id = ? AND numero_ejemplar = ?
+        `;
+        await conexion.query(updateEjemplarQuery, [nuevoEstadoEjemplar, prestamoInfo.libro_id, prestamoInfo.numero_ejemplar]);
+
+        res.status(200).json({ mensaje: 'Estado del préstamo y del ejemplar actualizados exitosamente' });
     } catch (error) {
         res.status(500).json({ error: error.message });
+    } 
+};
+
+
+// Obtener todas las opiniones de los usuarios
+export const obtenerOpinionesUsuarios = async (req, res) => {
+    let conexion;
+    try {
+        conexion = await crearConexion();
+        /**
+         * Consulta para obtener todas las opiniones de los usuarios.
+         * Esta consulta realiza una unión entre las tablas Opiniones, Usuarios y Libros.
+         * Devuelve información como el ID de la opinión, el texto de la opinión, la fecha de la opinión,
+         * el ID del usuario que realizó la opinión, el nombre y apellidos del usuario,
+         * el ID del libro asociado a la opinión y el título del libro.
+         */
+        const query = `
+        SELECT 
+            o.id AS opinion_id, 
+            o.opinion, 
+            o.fecha_opinion,
+            u.id AS usuario_id, 
+            u.nombre AS usuario_nombre, 
+            u.apellidos AS usuario_apellidos,
+            l.id AS libro_id, 
+            l.titulo AS libro_titulo
+        FROM 
+            Opiniones o
+        INNER JOIN 
+            Usuarios u ON o.usuario_id = u.id
+        INNER JOIN 
+            Libros l ON o.libro_id = l.id
+    `;
+        const opiniones = await conexion.query(query);
+
+        res.status(200).json(opiniones);
+        console.log('opiniones:', opiniones);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+
+    }
+};
+
+export const eliminarOpinion = async (req, res) => {
+
+    const { id } = req.params;
+    let conexion;
+    try {
+        conexion = await crearConexion();
+
+        const query = `DELETE FROM Opiniones WHERE id = ?`;
+
+        await conexion.query(query, [id]);
+
+        res.status(200).json({ mensaje: 'Opinión eliminada exitosamente' });
+    } catch (error) {
+
+        res.status(500).json({ error: error.message });
+    }
+}
+
+
+export const obtenerCantidadLibros = async (req, res) => {
+    let conexion = await crearConexion();
+
+    try {
+         conexion = await crearConexion();
+        const query = `SELECT COUNT(*) AS cantidad FROM libros`;
+        const result = await conexion.query(query);
+        res.status(200).json(result[0]);
+    }
+    catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+}
+
+export const obtenerCantidadUsuarios = async (req, res) => {
+    let conexion = await crearConexion();
+
+    try {
+         conexion = await crearConexion();
+        const query = `SELECT COUNT(*) AS cantidad FROM usuarios`;
+        const result = await conexion.query(query);
+        res.status(200).json(result[0]);
+    }
+    catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+}
+export const obtenerCantidadPrestamosActivos = async (req, res) => {
+    let conexion = await crearConexion();
+    try {
+        conexion = await crearConexion();
+        const query = `SELECT COUNT(*) AS cantidad FROM prestamos WHERE estado = 'activo'`;
+        const result = await conexion.query(query);
+        res.status(200).json(result[0]);
+    }
+    catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+}
+
+export const obtenerCantidadOpiniones = async (req, res) => {
+    let conexion = await crearConexion();
+    try {
+        conexion = await crearConexion();
+        const query = `SELECT COUNT(*) AS cantidad FROM opiniones`;
+        const result = await conexion.query(query);
+        res.status(200).json(result[0]);
+
     }
 
+    catch (error) {
+        res.status(500).json({ error: error.message });
+    }
 
 }

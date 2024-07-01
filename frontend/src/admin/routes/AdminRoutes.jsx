@@ -33,7 +33,7 @@ export const AdminRoutes = () => {
                     <Route path="prestamos" element={<PrestamosPage />} />
                     <Route path="usuarios" element={<UsuariosPage />} />
                     <Route path="opiniones" element={<OpinionesPage />} />
-                    <Route path= "editar" element={<EditarLibroPage />} />
+                    <Route path= "editar/:id" element={<EditarLibroPage />} />
                     <Route path= "categorias" element={<CategoriasPage />} />
                     <Route path= "autores" element={<AutoresPage/>} />
                     <Route path="agregar" element={ <NuevoLibroPage/>} />

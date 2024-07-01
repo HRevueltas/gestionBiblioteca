@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { Container, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography, Accordion, AccordionSummary, AccordionDetails, Chip, TextField, Box, Button } from '@mui/material';
+import { Container, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography, Accordion, AccordionSummary, AccordionDetails, Chip, TextField, Box, Button, IconButton } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { Link } from 'react-router-dom';
+import EditIcon from '@mui/icons-material/Edit';
 
 import { obtenerLibrosConEjemplares } from '../../services/adminService';
 import { Paginacion } from '../components/Paginacion'; // Ajusta la ruta según tu estructura de archivos
@@ -112,6 +113,7 @@ export const LibrosPage = () => {
                             <TableCell>Autores</TableCell>
                             <TableCell>Categorías</TableCell>
                             <TableCell>Número de Ejemplares</TableCell>
+                            <TableCell>Acciones</TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
@@ -134,6 +136,15 @@ export const LibrosPage = () => {
                                     <TableCell>{renderChips(libro.autores)}</TableCell>
                                     <TableCell>{renderChips(libro.categorias)}</TableCell>
                                     <TableCell>{libro.num_ejemplares}</TableCell>
+                                    <TableCell>
+                                        <IconButton
+                                            component={Link}
+                                            to={`/admin/editar/${libro.id}`}
+                                            color="primary"
+                                        >
+                                            <EditIcon />
+                                        </IconButton>
+                                    </TableCell>
                                 </TableRow>
                             ))}
                     </TableBody>
@@ -143,3 +154,4 @@ export const LibrosPage = () => {
         </Container>
     );
 };
+
