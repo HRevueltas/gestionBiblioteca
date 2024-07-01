@@ -17,7 +17,7 @@ export const iniciarSesionAdmin = async (req, res) => {
         if (result.length > 0) {
             const admin = result[0];
 
-            // Verificar la contraseña (aquí debes implementar tu lógica para comparar la contraseña)
+            // Verificar la contraseña 
             if (admin.contrasena === contrasena) {
                 // Autenticación exitosa
                 res.status(200).json({ mensaje: 'Inicio de sesión exitoso', admin });
@@ -47,15 +47,11 @@ export const obtenerUsuariosRegistrados = async (req, res) => {
 
     } catch (error) {
         res.status(500).json({ error: error.message });
-        // } finally {
-        //     if (conexion) {
-        //         conexion.end(); // Cierra la conexión a la base de datos al finalizar la operación
-        //     }
+        
     }
 };
 
 
-// Agregar usuario
 export const eliminarUsuario = async (req, res) => {
     const { id } = req.params;
     let conexion;
@@ -90,17 +86,22 @@ export const editarUsuario = async (req, res) => {
 
 
 
-// controllers/libros.js
-
 
 export const obtenerLibrosConEjemplares = async (req, res) => {
     try {
         const conexion = await crearConexion();
+        /**
+         * Consulta para obtener la información de los libros con sus respectivos ejemplares.
+         * La consulta selecciona los campos id, titulo, imagen_url, editorial, ano, idioma, npaginas, isbn13
+         * de la tabla Libros. Además, utiliza subconsultas para obtener los autores y categorías asociados
+         * a cada libro, concatenándolos en una sola cadena separada por comas. También cuenta la cantidad
+         * de ejemplares disponibles para cada libro.
+         */
         const query = `
             SELECT l.id, l.titulo, l.imagen_url, l.editorial, l.ano, l.idioma, l.npaginas, l.isbn13,
-                   (SELECT GROUP_CONCAT(a.nombre SEPARATOR ', ') FROM LibroAutores la INNER JOIN Autores a ON la.autor_id = a.id WHERE la.libro_id = l.id) AS autores,
-                   (SELECT GROUP_CONCAT(c.nombre SEPARATOR ', ') FROM LibroCategorias lc INNER JOIN Categorias c ON lc.categoria_id = c.id WHERE lc.libro_id = l.id) AS categorias,
-                   (SELECT COUNT(*) FROM Ejemplares e WHERE e.libro_id = l.id) AS num_ejemplares
+               (SELECT GROUP_CONCAT(a.nombre SEPARATOR ', ') FROM LibroAutores la INNER JOIN Autores a ON la.autor_id = a.id WHERE la.libro_id = l.id) AS autores,
+               (SELECT GROUP_CONCAT(c.nombre SEPARATOR ', ') FROM LibroCategorias lc INNER JOIN Categorias c ON lc.categoria_id = c.id WHERE lc.libro_id = l.id) AS categorias,
+               (SELECT COUNT(*) FROM Ejemplares e WHERE e.libro_id = l.id) AS num_ejemplares
             FROM Libros l;
         `;
         const libros = await conexion.query(query);
@@ -252,6 +253,8 @@ export const agregarLibroConEjemplares = async (req, res) => {
             VALUES (?, ?, ?, ?, ?, ?, ?)
         `;
         const resultLibro = await conexion.query(queryLibro, [titulo, imagen_url, editorial, ano, idioma, npaginas, isbn13]);
+
+        // se obtiene el id del libro insertado
         const libroId = resultLibro.insertId;
 
         // Insertar los autores del libro en la tabla LibroAutores
@@ -274,7 +277,7 @@ export const agregarLibroConEjemplares = async (req, res) => {
             await conexion.query(queryCategorias, [valuesCategorias]);
         }
 
-        /// Obtener el último número de ejemplar para este libro
+        /// Obtener el último número de ejemplar para este libro si no hay ejemplares se inicia en 0
         const queryUltimoEjemplar = `
                     SELECT IFNULL(MAX(numero_ejemplar), 0) AS ultimo_numero
                     FROM Ejemplares
@@ -311,6 +314,14 @@ export const obtenerLibroConEjemplaresPorId = async (req, res) => {
 
     try {
         const conexion = await crearConexion();
+
+        /**
+         * Esta consulta obtiene la información de un libro y sus ejemplares asociados.
+         * Se seleccionan los campos id, titulo, imagen_url, editorial, ano, idioma, npaginas, isbn13
+         * de la tabla Libros, y los campos numero_ejemplar y estado de la tabla Ejemplares.
+         * La consulta utiliza un JOIN para combinar las dos tablas en base a la condición l.id = e.libro_id,
+         * y se filtra por el id del libro especificado.
+         */
         const query = `
             SELECT 
                 l.id AS libro_id,
@@ -352,6 +363,12 @@ export const agregarEjemplar = async (req, res) => {
     let conexion;
     try {
         conexion = await crearConexion();
+        /**
+         * Esta consulta obtiene el último número de ejemplar para un libro específico.
+         * Se selecciona el máximo valor de "numero_ejemplar" de la tabla "Ejemplares"
+         * donde el "libro_id" coincide con el parámetro proporcionado.
+         * Si no hay ejemplares para el libro, se devuelve 0 como valor predeterminado.
+         */
         const queryUltimoEjemplar = `
             SELECT IFNULL(MAX(numero_ejemplar), 0) AS ultimo_numero
             FROM Ejemplares
@@ -362,6 +379,7 @@ export const agregarEjemplar = async (req, res) => {
         let ultimoNumeroEjemplar = resultUltimoEjemplar[0].ultimo_numero || 0;
 
         const { estado } = req.body;
+
         const query = `INSERT INTO Ejemplares (libro_id, numero_ejemplar, estado) VALUES (?, ?, ?)`;
         await conexion.query(query, [libro_id, ultimoNumeroEjemplar + 1, estado]);
         res.status(201).json({ mensaje: 'Ejemplar agregado exitosamente' });
@@ -402,8 +420,14 @@ export const actualizarLibro = async (req, res) => {
 export const obtenerPrestamosUsuario = async (req, res) => {
     try {
         const conexion = await crearConexion();
+        /**
+         * Esta consulta obtiene la información de los préstamos realizados, incluyendo el ID del préstamo,
+         * la fecha de préstamo, la fecha de devolución, el estado del préstamo, el nombre y apellidos del usuario,
+         * el email del usuario y el título del libro prestado.
+         * Se realiza un JOIN entre las tablas Prestamos, Usuarios y Libros para obtener la información relacionada.
+         */
         const query = `
- SELECT p.id, p.fecha_prestamo, p.fecha_devolucion, p.estado, u.nombre, u.apellidos, u.email, l.titulo
+            SELECT p.id, p.fecha_prestamo, p.fecha_devolucion, p.estado, u.nombre, u.apellidos, u.email, l.titulo
             FROM Prestamos p
             INNER JOIN Usuarios u ON p.usuario_id = u.id
             INNER JOIN Libros l ON p.libro_id = l.id
