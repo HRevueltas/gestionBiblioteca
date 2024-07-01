@@ -10,46 +10,49 @@ Tener instalado lo siguiente en la máquina:
 
 ## Pasos para poner en marcha la aplicación
 
+1. crear la base de datos con el nombre de "bibliotecatest"
 
-1. Navega al directorio del proyecto:
+
+
+2. desde la terminal navega al directorio del proyecto:
 
 ```
-cd proyectoGestionBiblioteca
+cd gestionBiblioteca-main
 ```
 
-2. Instala las dependencias del frontend:
+3. Instala las dependencias del frontend:
 
 ```
 cd frontend
 npm install
 ```
 
-3. Vuelve al directorio principal del proyecto:
+4. Vuelve al directorio principal del proyecto:
 
 ```
 cd ..
 ```
 
-4. Instala las dependencias del backend:
+5. Instala las dependencias del backend:
 
 ```
 cd backend
 npm install
 ```
 
-5. Inicia el servidor backend:
+6. Inicia el servidor backend:
 
 ```
 npm run dev
 ```
 
-6. Abre otra terminal y navega al directorio del frontend:
+7. Abre otra terminal y navega al directorio del frontend:
 
 ```
 cd frontend
 ```
 
-7. Inicia la aplicación frontend:
+8. Inicia la aplicación frontend:
 
 ```
 npm run dev
